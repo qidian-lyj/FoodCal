@@ -1,26 +1,20 @@
 """把按菜名分文件夹的照片整理成 YOLO 训练数据集，可用 GLM 大模型自动预标注。
 
-照片目录结构（每个子文件夹 = 一道菜，文件夹名即类别名，中文即可）：
-    photos/
-    ├── 番茄炒蛋/
-    │   ├── 001.jpg
-    │   └── ...
-    ├── 宫保鸡丁/
-    │   └── ...
-    └── 米饭/
-        └── ...
+照片来源两种：
+    1. 实拍（推荐）：photos/番茄炒蛋/*.jpg
+    2. 网图爬取：python scripts/crawl_images.py --per-dish 60
 
 用法：
-    # 1) GLM 自动预标注 + 切分 + 生成 data.yaml（需要 .env 里的 ZHIPU_API_KEY）
+    # 1) GLM 自动预标注 + 切分 + 生成 data.yaml（需要 .env 里的 ZHIPU_API_KEY，推荐）
     python scripts/build_dataset.py --src photos --out data/datasets/food --auto-label
 
-    # 2) 图片旁边已放好同名 .txt 标注（人工核对过）时，只做切分，不调用大模型
+    # 2) 无 API Key 的快速兜底：整图中心 90% 当框（定位粗糙，仅快速跑通）
+    python scripts/build_dataset.py --src photos --out data/datasets/food --pseudo-boxes
+
+    # 3) 图片旁边已放好同名 .txt 标注（人工核对过）时，只做切分
     python scripts/build_dataset.py --src photos --out data/datasets/food
 
-推荐流程：
-    每道菜拍 20~50 张 → --auto-label 自动预标注 → 用 X-AnyLabeling 抽查修正
-    （https://github.com/CVHub520/X-AnyLabeling，把修正后的 txt 放回图片旁）
-    → 重新跑本脚本（不带 --auto-label）→ scripts/train.py 开始训练
+流程：自动预标注 → 用 X-AnyLabeling 抽查修正 → scripts/train.py 训练
 """
 import argparse
 import os
@@ -55,7 +49,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="构建 YOLO 食物数据集")
     parser.add_argument("--src", required=True, help="照片根目录（子文件夹=类别）")
     parser.add_argument("--out", default="data/datasets/food", help="输出数据集目录")
-    parser.add_argument("--auto-label", action="store_true", help="用 GLM 大模型自动预标注")
+    parser.add_argument("--auto-label", action="store_true", help="用 GLM 大模型自动预标注（推荐，还能过滤搜错的图）")
+    parser.add_argument("--pseudo-boxes", action="store_true", help="无 API Key 的兜底：用整图中心 90%% 区域当框（定位粗糙，仅快速跑通用）")
     parser.add_argument("--api-key", default="", help="智谱 API Key（默认读 .env）")
     parser.add_argument("--val-ratio", type=float, default=0.15, help="验证集比例")
     args = parser.parse_args()
@@ -119,8 +114,19 @@ def main() -> None:
                 box, conf = result
                 label_text = yolo_line(cls_id, box, image.shape[1], image.shape[0])
                 print(f"  [自动] {split}/{img_path.name}: conf={conf:.2f}")
+            elif args.pseudo_boxes:  # 无 Key 兜底：中心 90% 区域
+                image = cv2.imread(str(img_path))
+                if image is None:
+                    print(f"  [跳过] {img_path.name}: 图片读取失败")
+                    skipped += 1
+                    continue
+                h, w = image.shape[:2]
+                dx, dy = int(w * 0.05), int(h * 0.05)
+                box = (dx, dy, w - dx, h - dy)
+                label_text = yolo_line(cls_id, box, w, h)
+                print(f"  [伪框] {split}/{img_path.name}")
             else:
-                print(f"  [跳过] {img_path.name}: 无同名 .txt 标注（可加 --auto-label）")
+                print(f"  [跳过] {img_path.name}: 无同名 .txt 标注（可加 --auto-label 或 --pseudo-boxes）")
                 skipped += 1
                 continue
 

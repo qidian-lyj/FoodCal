@@ -8,3 +8,4 @@ numpy>=1.26.0
 pyyaml>=6.0             # parse dataset data.yaml
 requests>=2.31.0        # GLM vision API calls
 python-dotenv>=1.0      # load .env config
+icrawler>=0.6.10        # web image crawling for dataset bootstrap
