@@ -30,6 +30,7 @@ import cv2  # noqa: E402
 import yaml  # noqa: E402
 from dotenv import load_dotenv  # noqa: E402
 
+from imgio import imread  # noqa: E402
 from vision import VisionRecognizer  # noqa: E402
 
 IMG_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
@@ -101,12 +102,17 @@ def main() -> None:
             if label_path.exists():  # 已有人工标注，直接用
                 label_text = label_path.read_text(encoding="utf-8").strip() + "\n"
             elif recognizer is not None:
-                image = cv2.imread(str(img_path))
+                image = imread(img_path)
                 if image is None:
                     print(f"  [跳过] {img_path.name}: 图片读取失败")
                     skipped += 1
                     continue
-                result = recognizer.find_bbox(image, cls)
+                try:
+                    result = recognizer.find_bbox(image, cls)
+                except RuntimeError as exc:
+                    print(f"  [跳过] {img_path.name}: API 失败（{str(exc)[:60]}）")
+                    skipped += 1
+                    continue
                 if result is None:
                     print(f"  [跳过] {img_path.name}: 未找到「{cls}」")
                     skipped += 1
@@ -115,7 +121,7 @@ def main() -> None:
                 label_text = yolo_line(cls_id, box, image.shape[1], image.shape[0])
                 print(f"  [自动] {split}/{img_path.name}: conf={conf:.2f}")
             elif args.pseudo_boxes:  # 无 Key 兜底：中心 90% 区域
-                image = cv2.imread(str(img_path))
+                image = imread(img_path)
                 if image is None:
                     print(f"  [跳过] {img_path.name}: 图片读取失败")
                     skipped += 1

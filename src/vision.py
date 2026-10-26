@@ -12,6 +12,7 @@ from __future__ import annotations
 import base64
 import json
 import re
+import time
 
 import cv2
 import requests
@@ -153,7 +154,7 @@ class VisionRecognizer:
         self.timeout = timeout
 
     def _chat(self, image_bgr, prompt: str, max_side: int = _MAX_SIDE):
-        """发送图片+提示词，返回 (回复文本, 图片缩放比例)。"""
+        """发送图片+提示词，返回 (回复文本, 图片缩放比例)。限流/网络抖动自动重试。"""
         prepared, scale = _prepare(image_bgr, max_side)
         payload = {
             "model": self.model,
@@ -169,22 +170,30 @@ class VisionRecognizer:
                 }
             ],
         }
-        try:
-            resp = requests.post(
-                f"{self.base_url}/chat/completions",
-                json=payload,
-                headers={"Authorization": f"Bearer {self.api_key}"},
-                timeout=self.timeout,
-            )
-        except requests.RequestException as exc:
-            raise RuntimeError(f"网络请求失败：{exc}") from exc
-        if resp.status_code != 200:
-            raise RuntimeError(f"API 返回 {resp.status_code}：{resp.text[:200]}")
-        try:
-            content = resp.json()["choices"][0]["message"]["content"] or ""
-        except (KeyError, IndexError) as exc:
-            raise RuntimeError(f"API 响应格式异常：{resp.text[:200]}") from exc
-        return content, scale
+        headers = {"Authorization": f"Bearer {self.api_key}"}
+        url = f"{self.base_url}/chat/completions"
+
+        delays = (2, 5, 10, 20, 40)  # 指数退避，共 6 次尝试
+        last_err: Exception | None = None
+        for attempt in range(len(delays) + 1):
+            try:
+                resp = requests.post(url, json=payload, headers=headers, timeout=self.timeout)
+            except requests.RequestException as exc:
+                last_err = RuntimeError(f"网络请求失败：{exc}")
+                if attempt < len(delays):
+                    time.sleep(delays[attempt])
+                continue
+            if resp.status_code == 200:
+                try:
+                    return resp.json()["choices"][0]["message"]["content"] or "", scale
+                except (KeyError, IndexError) as exc:
+                    raise RuntimeError(f"API 响应格式异常：{resp.text[:200]}") from exc
+            if resp.status_code in (401, 403):  # 认证问题，重试无意义
+                raise RuntimeError(f"API 认证失败（{resp.status_code}）：请检查 ZHIPU_API_KEY")
+            last_err = RuntimeError(f"API 返回 {resp.status_code}：{resp.text[:200]}")
+            if attempt < len(delays):  # 429 限流 / 5xx 服务端异常 → 退避重试
+                time.sleep(delays[attempt])
+        raise last_err or RuntimeError("API 请求失败")
 
     def recognize(self, image_bgr, dish_hints: list[str] | None = None, max_items: int = 8) -> list[dict]:
         """识别整张图中的所有食物，返回 [{name_zh, grams, conf}]。"""

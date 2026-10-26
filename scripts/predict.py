@@ -15,6 +15,7 @@ import cv2  # noqa: E402
 import pandas as pd  # noqa: E402
 
 from detector import FoodDetector  # noqa: E402
+from imgio import imread, imwrite  # noqa: E402
 from nutrition import NutritionDB, estimate_grams, kcal_of  # noqa: E402
 from visualize import draw_detections  # noqa: E402
 
@@ -26,7 +27,7 @@ def main() -> None:
     parser.add_argument("--conf", type=float, default=0.25, help="置信度阈值")
     args = parser.parse_args()
 
-    image = cv2.imread(args.image)
+    image = imread(args.image)
     if image is None:
         raise SystemExit(f"读取图片失败: {args.image}")
 
@@ -59,7 +60,7 @@ def main() -> None:
     out_dir = PROJECT_ROOT / "results"
     out_dir.mkdir(exist_ok=True)
     out_path = out_dir / f"predict_{Path(args.image).stem}.jpg"
-    cv2.imwrite(str(out_path), draw_detections(image, boxes, labels))
+    imwrite(out_path, draw_detections(image, boxes, labels))
     print(f"标注图已保存: {out_path}")
 
 

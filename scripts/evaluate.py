@@ -31,6 +31,7 @@ import pandas as pd  # noqa: E402
 from dotenv import load_dotenv  # noqa: E402
 
 from detector import FoodDetector  # noqa: E402
+from imgio import imread  # noqa: E402
 from nutrition import NutritionDB, estimate_grams, kcal_of  # noqa: E402
 from vision import VisionRecognizer  # noqa: E402
 
@@ -175,7 +176,7 @@ def cmd_calories(args) -> None:
 
     rows = []
     for _, r in gt.iterrows():
-        image = cv2.imread(str(r["image"]))
+        image = imread(r["image"])
         if image is None:
             print(f"[跳过] 读不到图片: {r['image']}")
             continue
@@ -235,7 +236,7 @@ def cmd_engines(args) -> None:
         db, detector, vision = build_components(engine, args.weights)
         latencies, top1_hits, any_hits, api_calls = [], [], [], 0
         for _, r in gt.iterrows():
-            image = cv2.imread(str(r["image"]))
+            image = imread(r["image"])
             if image is None:
                 continue
             t0 = time.perf_counter()
