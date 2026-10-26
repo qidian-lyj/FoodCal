@@ -1,0 +1,10 @@
+# FoodCal dependencies (comments in English to avoid encoding issues on Windows)
+ultralytics>=8.2.0      # YOLOv8 training & inference (installs torch automatically)
+streamlit>=1.35.0       # web UI
+opencv-python>=4.9.0    # image processing
+pillow>=10.0.0          # drawing Chinese labels on images
+pandas>=2.0.0           # nutrition database & result tables
+numpy>=1.26.0
+pyyaml>=6.0             # parse dataset data.yaml
+requests>=2.31.0        # GLM vision API calls
+python-dotenv>=1.0      # load .env config

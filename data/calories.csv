@@ -1,0 +1,88 @@
+name_en,name_zh,kcal_per_100g,typical_serving_g,category
+banana,香蕉,89,120,水果
+apple,苹果,52,180,水果
+orange,橙子,47,150,水果
+watermelon,西瓜,31,300,水果
+grape,葡萄,69,150,水果
+sandwich,三明治,250,150,快餐
+hot dog,热狗,290,100,快餐
+pizza,披萨,266,150,快餐
+burger,汉堡,295,200,快餐
+french fries,薯条,312,120,快餐
+fried chicken,炸鸡,260,150,肉类
+broccoli,西兰花,34,100,蔬菜
+carrot,胡萝卜,41,80,蔬菜
+corn,玉米,86,150,蔬菜
+potato,土豆,77,150,蔬菜
+salad,沙拉,120,200,蔬菜
+donut,甜甜圈,452,60,甜点
+cake,蛋糕,348,100,甜点
+ice cream,冰淇淋,207,100,甜点
+cooked rice,米饭,130,200,主食
+steamed bun,馒头,223,100,主食
+noodles,面条,110,300,主食
+dumplings,饺子,240,200,主食
+baozi,包子,227,150,主食
+fried dough stick,油条,388,60,早餐
+egg,鸡蛋,144,60,蛋白质
+braised pork,红烧肉,475,150,肉类
+mapo tofu,麻婆豆腐,130,200,家常菜
+tomato scrambled eggs,番茄炒蛋,86,200,家常菜
+barbecue skewers,烤串,215,150,肉类
+sushi,寿司,143,200,主食
+milk,牛奶,54,250,饮品
+yogurt,酸奶,72,200,饮品
+soy milk,豆浆,31,250,饮品
+cola,可乐,43,330,饮品
+milk tea,奶茶,55,500,饮品
+kung pao chicken,宫保鸡丁,180,200,家常菜
+yuxiang shredded pork,鱼香肉丝,150,200,家常菜
+pork with green pepper,青椒肉丝,130,200,家常菜
+sweet and sour pork,糖醋里脊,240,150,家常菜
+twice-cooked pork,回锅肉,320,150,家常菜
+cola chicken wings,可乐鸡翅,200,200,肉类
+braised fish,红烧鱼,160,150,肉类
+white cut chicken,白切鸡,170,150,肉类
+hot and sour potato,酸辣土豆丝,95,150,家常菜
+stir-fried greens,清炒时蔬,60,200,蔬菜
+egg fried rice,蛋炒饭,186,250,主食
+fried noodles,炒面,155,300,主食
+steamed egg custard,蒸蛋羹,62,150,家常菜
+pudding,布丁,130,150,甜点
+cookies,饼干,480,50,甜点
+chocolate,巧克力,546,30,甜点
+egg tart,蛋挞,320,60,甜点
+cream puff,泡芙,260,80,甜点
+tiramisu,提拉米苏,280,120,甜点
+waffle,华夫饼,291,120,甜点
+pancake,松饼,227,150,甜点
+mooncake,月饼,420,100,甜点
+brownie,布朗尼,466,60,甜点
+sundae,圣代,220,150,甜点
+popsicle,雪糕,120,80,甜点
+strawberry,草莓,32,150,水果
+blueberry,蓝莓,57,120,水果
+mango,芒果,60,200,水果
+pineapple,菠萝,50,180,水果
+peach,桃子,42,150,水果
+pear,梨,57,180,水果
+cherry,樱桃,63,120,水果
+kiwi,猕猴桃,61,100,水果
+durian,榴莲,147,150,水果
+lychee,荔枝,66,150,水果
+cantaloupe,哈密瓜,34,250,水果
+dragon fruit,火龙果,60,200,水果
+spaghetti,意大利面,158,250,外国菜
+lasagna,千层面,135,250,外国菜
+steak,牛排,271,200,外国菜
+bacon,培根,500,50,外国菜
+sausage,香肠,300,100,外国菜
+burrito,墨西哥卷饼,206,250,外国菜
+taco,塔可,226,100,外国菜
+sashimi,生鱼片,127,120,外国菜
+tempura,天妇罗,220,150,外国菜
+ramen,拉面,105,500,外国菜
+curry rice,咖喱饭,140,350,外国菜
+bibimbap,韩式拌饭,130,400,外国菜
+cheese,芝士,402,30,外国菜
+croissant,可颂,406,60,外国菜

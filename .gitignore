@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+
+# 原始照片体积大，不入库（标注后的数据集在 data/datasets/ 也已忽略）
+photos/
+
+# 模型权重不入库（yolov8n.pt 首次运行自动下载）
+*.pt
+
+# 训练输出与本地评测结果
+runs/
+results/
+
+# 数据集体积大，不入库（用 build_dataset.py 本地重建）
+data/datasets/
