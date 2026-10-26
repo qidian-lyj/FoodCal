@@ -136,8 +136,9 @@ def main() -> None:
                 skipped += 1
                 continue
 
-            shutil.copy2(img_path, out / split / "images" / img_path.name)
-            (out / split / "labels" / f"{img_path.stem}.txt").write_text(label_text, encoding="utf-8")
+            safe_name = f"{cls_id:02d}_{img_path.name}"  # 类别 id 做前缀，避免跨类同名互相覆盖
+            shutil.copy2(img_path, out / split / "images" / safe_name)
+            (out / split / "labels" / f"{Path(safe_name).stem}.txt").write_text(label_text, encoding="utf-8")
             if split == "train":
                 n_train += 1
             else:
