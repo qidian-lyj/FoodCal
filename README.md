@@ -5,6 +5,29 @@
 ![YOLO 识别效果](docs/demo_yolo_pizza.jpg)
 *YOLO 检测 + 中文标注 + 卡路里估算示例（3 块披萨，约 1231 千卡）*
 
+![自训模型识别麻婆豆腐](docs/demo_custom_model.jpg)
+*自训模型 food_v1 对验证集图片的识别：麻婆豆腐 96% · 约439千卡*
+
+## 📊 实验结果（v1 · 网图数据 · 20 类食堂菜）
+
+训练配置：YOLOv8n @640，60 epochs，CPU（i7-14650HX）2.74 小时，数据 824 张（GLM 自动标注）。
+
+| 指标 | 数值 |
+|---|---|
+| **mAP@50** | **0.863** |
+| mAP@50-95 | 0.532 |
+| Precision / Recall | 0.896 / 0.755 |
+| 单张推理耗时（CPU） | 35.6 ms |
+
+**表现最好的类**（AP@50 ≈ 0.99）：可乐鸡翅、宫保鸡丁、番茄炒蛋、炒面、糖醋里脊、蒸蛋羹、鱼香肉丝、青椒肉丝、酸辣土豆丝
+
+**表现较差的类及归因**：
+- 包子（0.478）：网图中包子/小笼包/生煎形态差异大，标注歧义高
+- 米饭（recall 0.25）：白米饭在白瓷碗里对比度低，漏检多
+- 饺子（0.165）/ 馒头：验证样本仅 2 张，统计不可靠 + 生熟形态混爬
+
+**下一步（v2 改进方向）**：补实拍数据微调、对弱类定向补爬、类别均衡采样。
+
 ## 功能特性
 
 - 📷 拍照 / 🖼️ 上传图片，自动检测画面中的食物并框出位置
@@ -74,12 +97,14 @@ python scripts/check_dataset.py data/datasets/food
 **第 4 步：训练 + 评测 + 启用**
 
 ```powershell
-python scripts/train.py --data data/datasets/food/data.yaml --epochs 80
-# 训练完把 runs/detect/food_yolov8n/weights/best.pt 复制到 models/food.pt
+python scripts/train.py --data data/datasets/food/data.yaml --epochs 60 --name food_v1
+# 训练完把 runs/detect/food_v1*/weights/best.pt 复制到 models/food.pt
 
 # 评测：mAP / 各类别 AP / 混淆矩阵（多个权重可做消融对比）
 python scripts/evaluate.py detect --weights models/food.pt --data data/datasets/food/data.yaml
 ```
+
+> v1 实测（纯网图数据，60 epochs）：**mAP@50 = 0.863**，9/20 类 AP@50 ≈ 0.99，详见上方「实验结果」。
 
 刷新网页，侧边栏选择 `models/food.pt`，用 **混合引擎**：YOLO 框出每格菜 → GLM 确认菜名 → 查表算热量。这就是答辩演示的最佳形态。
 
