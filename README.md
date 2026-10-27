@@ -93,13 +93,18 @@ kcal = portion(g) × kcal-per-100g / 100
 
 Portion source priority: **VLM estimate > box-area heuristic > default 150 g**, all adjustable via sliders. The heuristic assumes a box covering 25% of the frame equals one standard serving, scaled by `sqrt(area_ratio / 25%)`, clamped to 0.5–2.5×.
 
-## 🌐 Deploy to Hugging Face Spaces
+## 🌐 Live Demo (Streamlit Community Cloud)
 
-```powershell
-python scripts/prepare_hf_space.py    # assembles an upload-ready hf-space/ folder
-```
+The app runs live on Streamlit Community Cloud (free):
 
-Then follow the 3-step upload in [hf-space/DEPLOY.md](hf-space/DEPLOY.md) — no token needed (web drag-and-drop).
+1. Sign in at [share.streamlit.io](https://share.streamlit.io) with your GitHub account
+2. **New app** → repo `qidian-lyj/FoodCal`, branch `main`, main file `app.py`
+3. **Deploy** — the trained model (`models/food.pt`) ships with the repo
+
+The public URL is shown after deployment; add it to the repo **About** panel.
+
+> Note: Hugging Face Spaces no longer hosts Python apps on free accounts (static pages only, Python needs PRO). `scripts/prepare_hf_space.py` still assembles a Docker-based HF Space for PRO users.
+
 
 ## 📁 Project Structure
 

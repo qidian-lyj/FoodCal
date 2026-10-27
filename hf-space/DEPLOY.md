@@ -1,5 +1,8 @@
 # 🚀 部署到 Hugging Face Spaces（3 步，约 5 分钟）
 
+> ⚠️ **2026 起HF 免费账户只能托管静态页面**，运行 Python 应用（Gradio/Docker/Streamlit）需要 PRO 订阅（$9/月）。
+> 免费替代方案：**Streamlit Community Cloud**（见 README「Live Demo」小节），本目录适用于 HF PRO 用户。
+
 本目录是给 HF Space 用的完整文件包。模型权重 `models/food.pt`（6.5 MB）
 也在里面——**别把它提交到 GitHub**（已在 .gitignore），但可以传到 HF。
 
