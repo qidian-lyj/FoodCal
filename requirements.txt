@@ -1,7 +1,7 @@
 # FoodCal dependencies (comments in English to avoid encoding issues on Windows)
 ultralytics>=8.2.0      # YOLOv8 training & inference (installs torch automatically)
 streamlit>=1.35.0       # web UI
-opencv-python>=4.9.0    # image processing
+opencv-python-headless>=4.9.0    # headless: servers have no libGL
 pillow>=10.0.0          # drawing Chinese labels on images
 pandas>=2.0.0           # nutrition database & result tables
 numpy>=1.26.0
