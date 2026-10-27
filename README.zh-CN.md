@@ -10,6 +10,8 @@
 ![自训模型识别麻婆豆腐](docs/demo_custom_model.jpg)
 *自训模型 food_v1 对验证集图片的识别：麻婆豆腐 96% · 约439千卡*
 
+🌐 **在线试用**：[foodcal-yrnzc2mbennqpxvq6eqdfm.streamlit.app](https://foodcal-yrnzc2mbennqpxvq6eqdfm.streamlit.app/)（上传照片即可体验自训模型；GLM 引擎需在侧边栏填入自己的免费 Key）
+
 ## 📊 实验结果（v1 · 网图数据 · 20 类食堂菜）
 
 训练配置：YOLOv8n @640，60 epochs，CPU（i7-14650HX）2.74 小时，数据 824 张（GLM 自动标注）。
