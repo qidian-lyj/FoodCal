@@ -1,3 +1,5 @@
+[English](README.md) | 中文
+
 # 🍕 FoodCal — 拍照识别食物并估算卡路里
 
 基于 **YOLOv8 目标检测 + 视觉大模型（GLM-4.6V）+ 营养数据库** 的「拍照算卡路里」项目，Streamlit 网页界面。

@@ -14,6 +14,7 @@
     # 3) 图片旁边已放好同名 .txt 标注（人工核对过）时，只做切分
     python scripts/build_dataset.py --src photos --out data/datasets/food
 
+支持断点续跑：输出目录里已存在的「图片+标签」会自动跳过，不重复调用 API。
 流程：自动预标注 → 用 X-AnyLabeling 抽查修正 → scripts/train.py 训练
 """
 import argparse
@@ -26,7 +27,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-import cv2  # noqa: E402
+import cv2  # noqa: E402,F401  (保留：部分用户脚本会引用)
 import yaml  # noqa: E402
 from dotenv import load_dotenv  # noqa: E402
 
@@ -88,6 +89,11 @@ def main() -> None:
     rng = random.Random(42)  # 固定种子保证可复现
     total_train, total_val, skipped = 0, 0, 0
 
+    # 「未找到」缓存：GLM 确认图中无目标菜的图片记录下来，重跑时不再重复调用 API
+    # （数据集目录变了缓存也会失效；想重新检测就删掉 _not_found.txt）
+    nf_path = out / "_not_found.txt"
+    not_found = set(nf_path.read_text(encoding="utf-8").splitlines()) if nf_path.exists() else set()
+
     for cls_id, cls in enumerate(classes):
         imgs = sorted(p for p in (src / cls).iterdir() if p.suffix.lower() in IMG_EXTS)
         rng.shuffle(imgs)
@@ -98,6 +104,21 @@ def main() -> None:
         for idx, img_path in enumerate(imgs):
             split = "val" if idx < n_val else "train"
             label_path = img_path.with_suffix(".txt")
+            safe_name = f"{cls_id:02d}_{img_path.name}"  # 类别 id 做前缀，避免跨类同名互相覆盖
+            out_img = out / split / "images" / safe_name
+            out_lbl = out / split / "labels" / f"{Path(safe_name).stem}.txt"
+
+            if out_img.exists() and out_lbl.exists():
+                # 断点续跑：上次已成功标注的图直接跳过，不再调用 API
+                if split == "train":
+                    n_train += 1
+                else:
+                    total_val += 1
+                continue
+
+            if f"{cls}/{img_path.name}" in not_found:
+                skipped += 1  # 断点续跑：GLM 已确认这张图里没有目标菜
+                continue
 
             if label_path.exists():  # 已有人工标注，直接用
                 label_text = label_path.read_text(encoding="utf-8").strip() + "\n"
@@ -115,6 +136,8 @@ def main() -> None:
                     continue
                 if result is None:
                     print(f"  [跳过] {img_path.name}: 未找到「{cls}」")
+                    not_found.add(f"{cls}/{img_path.name}")
+                    nf_path.write_text("\n".join(sorted(not_found)), encoding="utf-8")
                     skipped += 1
                     continue
                 box, conf = result
@@ -136,9 +159,8 @@ def main() -> None:
                 skipped += 1
                 continue
 
-            safe_name = f"{cls_id:02d}_{img_path.name}"  # 类别 id 做前缀，避免跨类同名互相覆盖
-            shutil.copy2(img_path, out / split / "images" / safe_name)
-            (out / split / "labels" / f"{Path(safe_name).stem}.txt").write_text(label_text, encoding="utf-8")
+            shutil.copy2(img_path, out_img)
+            out_lbl.write_text(label_text, encoding="utf-8")
             if split == "train":
                 n_train += 1
             else:
@@ -147,7 +169,7 @@ def main() -> None:
         print(f"  → train {n_train} 张, val {min(n_val, len(imgs))} 张")
 
     data_yaml = {
-        "path": ".",  # 相对数据集根目录
+        "path": str(out.resolve()),  # 绝对路径：ultralytics 对相对 path 的解析依赖运行目录，容易踩坑
         "train": "train/images",
         "val": "val/images",
         "names": {i: name for i, name in enumerate(classes)},

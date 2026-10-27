@@ -12,6 +12,7 @@ FONT_CANDIDATES = [
     r"C:\Windows\Fonts\msyh.ttc",     # 微软雅黑
     r"C:\Windows\Fonts\simhei.ttf",   # 黑体
     r"C:\Windows\Fonts\simsun.ttc",   # 宋体
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",  # HF Space (fonts-noto-cjk)
     "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",
 ]
 

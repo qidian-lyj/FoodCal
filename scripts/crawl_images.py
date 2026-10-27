@@ -23,6 +23,14 @@ from PIL import Image  # noqa: E402
 
 from nutrition import NutritionDB  # noqa: E402
 
+# 爬取目标：20 种食堂菜（固定清单，不随营养库变化）
+CANTEEN_DISHES = [
+    "番茄炒蛋", "麻婆豆腐", "红烧肉", "宫保鸡丁", "鱼香肉丝",
+    "青椒肉丝", "糖醋里脊", "回锅肉", "可乐鸡翅", "红烧鱼",
+    "白切鸡", "酸辣土豆丝", "清炒时蔬", "蛋炒饭", "米饭",
+    "炒面", "饺子", "包子", "馒头", "蒸蛋羹",
+]
+
 # 部分菜名直接搜效果一般，用更具体的搜索词
 QUERY_OVERRIDES = {
     "清炒时蔬": "清炒时蔬 炒青菜",
@@ -51,11 +59,16 @@ def crawl_one(dish: str, query: str, dest: Path, per_dish: int) -> int:
         except Exception as exc:  # 单引擎失败不影响另一个
             print(f"  [{name}] 爬取异常（继续）: {exc}")
 
-    # 去重 + 过滤 + 统一为 jpg
+    # 去重 + 过滤 + 统一为 jpg（新文件编号接着已有文件往后排，避免重复爬取时互相覆盖）
+    start_no = len([p for p in dest.glob("*.jpg") if p.stem.isdigit()])
     seen, kept, removed = set(), 0, 0
     for p in sorted(dest.iterdir()):
         if p.suffix.lower() not in {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif"}:
             p.unlink(missing_ok=True)
+            continue
+        if p.stem.isdigit():  # 已编号的历史图片跳过处理
+            seen.add(hashlib.md5(p.read_bytes()).hexdigest())
+            kept += 1
             continue
         try:
             data = p.read_bytes()
@@ -71,12 +84,9 @@ def crawl_one(dish: str, query: str, dest: Path, per_dish: int) -> int:
                     removed += 1
                     continue
                 seen.add(md5)
-                new_path = dest / f"{kept + 1:03d}.jpg"
-                if p != new_path:
-                    im.save(dest / f"__tmp_{kept:03d}.jpg", quality=90)
-                    p.unlink()
-                    (dest / f"__tmp_{kept:03d}.jpg").rename(new_path)
                 kept += 1
+                im.save(dest / f"{start_no + kept:03d}.jpg", quality=90)
+                p.unlink()
         except Exception:
             p.unlink(missing_ok=True)
             removed += 1
